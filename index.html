@@ -1,47 +1,240 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>USA Time Zones</title>
+  <title>Live USA Time Zones</title>
+
   <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#0b2a33;color:#fff}
-    .wrap{max-width:520px;margin:0 auto;padding:20px}
-    h1{text-align:center;margin:10px 0 20px}
-    .row{
-      background:rgba(255,255,255,.14);
-      border-radius:16px;
-      padding:14px 16px;
-      display:flex;justify-content:space-between;align-items:center;
-      margin:14px 0;
-      backdrop-filter: blur(6px);
+    :root{
+      --bg1:#062a33;
+      --bg2:#083b44;
+      --card: rgba(255,255,255,.14);
+      --card2: rgba(255,255,255,.10);
+      --text:#ffffff;
+      --muted: rgba(255,255,255,.78);
+      --radius: 18px;
+      --shadow: 0 12px 30px rgba(0,0,0,.28);
     }
-    .label{font-weight:700}
-    .time{font-weight:900;font-size:20px}
+
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 50% -200px, rgba(90,200,220,.35), transparent 70%),
+        linear-gradient(180deg, var(--bg2), var(--bg1));
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .wrap{
+      width: 100%;
+      max-width: 820px;
+      padding: 28px 16px 44px;
+    }
+
+    h1{
+      text-align:center;
+      margin: 18px 0 22px;
+      letter-spacing: .2px;
+      font-size: clamp(26px, 4vw, 40px);
+      text-shadow: 0 6px 18px rgba(0,0,0,.35);
+    }
+
+    .card{
+      background: var(--card2);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .row{
+      background: var(--_pickle: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin: 14px 0;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .label{
+      font-weight: 700;
+      font-size: 16px;
+      opacity: .95;
+    }
+
+    .time{
+      font-weight: 900;
+      font-size: 22px;
+      letter-spacing: .6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .factTitle{
+      font-weight: 900;
+      font-size: 18px;
+      margin: 0 0 10px;
+    }
+
+    .factText{
+      margin: 0 0 14px;
+      line-height: 1.35;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .btn{
+      display:inline-block;
+      text-decoration:none;
+      font-weight: 800;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.20);
+      color: #fff;
+    }
+    .btn:hover{ background: rgba(255,255,255,.24); }
+
+    .small{
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: .7;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <h1>Live USA Time Zones</h1>
 
-    <div class="row"><div class="label">Eastern (ET)</div><div class="time" id="et">--</div></div>
-    <div class="row"><div class="label">Central (CT)</div><div class="time" id="ct">--</div></div>
-    <div class="row"><div class="label">Pacific (PT)</div><div class="time" id="pt">--</div></div>
+    <div class="card">
+      <div class="row">
+        <div class="label">Eastern (ET)</div>
+        <div class="time" id="et">--:--:--</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Central (CT)</div>
+        <div class="time" id="ct">--:--:--</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Pacific (PT)</div>
+        <div class="time" id="pt">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="factTitle" id="factTitle">Fun Fact of the Day</div>
+        <p class="factText" id="factText">Loading…</p>
+
+        <!-- This button is your future money button -->
+        <a class="btn" id="factLink" href="#" target="_blank" rel="noopener">
+          See something similar
+        </a>
+
+        <div class="small">
+          Changes daily automatically. (Link can be updated later to your affiliate link.)
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    function fmt(tz){
-      return new Intl.DateTimeFormat([], {
-        hour:'numeric', minute:'2-digit', second:'2-digit',
-        hour12:true, timeZone: tz
+    function formatTime(tz){
+      return new Intl.DateTimeFormat("en-US", {
+        timeZone: tz,
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
       }).format(new Date());
     }
+
     function tick(){
-      document.getElementById('et').textContent = fmt('America/New_York');
-      document.getElementById('ct').textContent = fmt('America/Chicago');
-      document.getElementById('pt').textContent = fmt('America/Los_Angeles');
+      document.getElementById("et").textContent = formatTime("America/New_York");
+      document.getElementById("ct").textContent = formatTime("America/Chicago");
+      document.getElementById("pt").textContent = formatTime("America/Los_Angeles");
     }
-    tick(); setInterval(tick, 1000);
+    tick();
+    setInterval(tick, 1000);
+
+    // "Daily fact" data (you can add more later)
+    // For now, links go to Amazon search pages (not affiliate yet, but works).
+    const facts = [
+      {
+        title: "Post-it Notes",
+        text: "Post-it Notes exist because a scientist at 3M accidentally made a weak adhesive in the 1960s. Years later, another employee used it for removable bookmarks—and the idea stuck.",
+        link: "https://www.amazon.com/s?k=post+it+notes"
+      },
+      {
+        title: "The Microwave Oven",
+        text: "Microwaves became a kitchen thing after an engineer noticed a candy bar melt near radar equipment in the 1940s. The first machines were huge—eventually they shrank into your countertop.",
+        link: "https://www.amazon.com/s?k=microwave+oven"
+      },
+      {
+        title: "Velcro",
+        text: "Velcro came from a walk in the woods: burrs stuck to a dog’s fur. Under a microscope, they looked like tiny hooks—so the inventor copied the idea into fabric fasteners.",
+        link: "https://www.amazon.com/s?k=velcro"
+      },
+      {
+        title: "Sunglasses",
+        text: "Early sunglasses were used to cut glare and protect eyes long before modern fashion. Over time, better lenses and coatings turned them into everyday gear.",
+        link: "https://www.amazon.com/s?k=sunglasses"
+      },
+      {
+        title: "The Ballpoint Pen",
+        text: "Ballpoints took off when inventors figured out inks that dried fast and didn’t leak. Once mass-produced, they made fountain pens feel like a fancy hobby.",
+        link: "https://www.amazon.com/s?k=ballpoint+pen"
+      },
+      {
+        title: "Ziplock Bags",
+        text: "Resealable plastic bags evolved from early zipper-style closures, then got refined into the quick ‘press to seal’ version people use for food and storage today.",
+        link: "https://www.amazon.com/s?k=ziplock+bags"
+      },
+      {
+        title: "The Thermos",
+        text: "Vacuum insulation was developed to keep temperatures stable—first for scientific uses—then became the classic thermos for coffee and travel.",
+        link: "https://www.amazon.com/s?k=thermos"
+      },
+      {
+        title: "The Umbrella",
+        text: "Umbrellas started as shade tools before they became rain gear. Waterproof materials and collapsible frames eventually turned them into the modern version.",
+        link: "https://www.amazon.com/s?k=umbrella"
+      }
+    ];
+
+    function getDayIndexUTC(){
+      const d = new Date();
+      const key = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+      return Math.abs(key) % facts.length;
+    }
+
+    function setFact(){
+      const f = facts[getDayIndexUTC()];
+      document.getElementById("factTitle").textContent = "Fun Fact of the Day: " + f.title;
+      document.getElementById("factText").textContent = f.text;
+      document.getElementById("factLink").href = f.link || "#";
+    }
+
+    setFact();
   </script>
 </body>
 </html>
