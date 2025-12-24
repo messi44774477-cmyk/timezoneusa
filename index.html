@@ -7,25 +7,6 @@
   <meta name="description" content="Live clocks for Eastern, Central, and Pacific time zones + a daily fun fact." />
 
   <style>
-    .bg-video{
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -2;
-}
-
-.bg-overlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.35); /* darkens video so text is readable */
-  z-index: -1;
-}
-
-/* keep your content above the video */
-.wrap{ position: relative; z-index: 1; }
-
     :root{
       --bg1:#062a33;
       --bg2:#083b44;
@@ -41,8 +22,24 @@
 
     *{ box-sizing:border-box; }
 
+    /* --- Ocean background video --- */
+    .bg-video{
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      background: linear-gradient(180deg, var(--bg2), var(--bg1)); /* fallback if video fails */
+    }
+    .bg-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35); /* darkens video so text is readable */
+      z-index: -1;
+    }
+
     body{
-  
       margin:0;
       font-family: Arial, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color:var(--text);
@@ -50,13 +47,14 @@
       display:flex;
       justify-content:center;
       align-items:flex-start;
-      background:
-        radial-gradient(1200px 700px at 50% -200px, rgba(90,220,220,.35), transparent 70%),
-        linear-gradient(180deg, var(--bg2), var(--bg1));
       padding: 28px 16px 44px;
+      background: transparent; /* IMPORTANT: let video show through */
     }
 
+    /* keep content above the video */
     .wrap{
+      position: relative;
+      z-index: 1;
       width:100%;
       max-width: 820px;
     }
@@ -134,24 +132,42 @@
       font-weight: 800;
       box-shadow: 0 10px 22px rgba(0,0,0,.18);
     }
-
     .btn:hover{ filter: brightness(1.05); }
+
     .tiny{
       margin-top: 10px;
       font-size: 12px;
       color: var(--muted);
     }
+
+    /* Optional: a small sound button (autoplay must start muted) */
+    .soundBtn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
 </head>
 
 <body>
-body { background: transparent !important; }
   <!-- Ocean background video -->
-  body { background: transparent !important; }
-<video class="bg-video" autoplay muted loop playsinline>
-  <source src="14942531_640_360_24fps.mp4" type="video/mp4">
-</video>
-<div class="bg-overlay"></div>
+  <video id="oceanVideo" class="bg-video" autoplay muted loop playsinline>
+    <source src="14942531_640_360_24fps.mp4" type="video/mp4">
+    <!-- If you later add a .webm file, include it above mp4 for better performance:
+    <source src="ocean.webm" type="video/webm">
+    -->
+  </video>
+  <div class="bg-overlay" aria-hidden="true"></div>
 
   <div class="wrap">
     <h1>Live USA Time Zones</h1>
@@ -171,6 +187,9 @@ body { background: transparent !important; }
         <div class="time" id="tPT">--:--:--</div>
       </div>
       <div class="sub">Updates every second.</div>
+
+      <!-- Optional sound toggle (click to unmute) -->
+      <button class="soundBtn" id="soundBtn" type="button">🔇 Sound: Off</button>
     </div>
 
     <!-- DAILY FACT -->
@@ -193,17 +212,19 @@ body { background: transparent !important; }
         hour12: true
       }).format(new Date());
     }
+
     function tick(){
       document.getElementById("tET").textContent = fmt("America/New_York");
       document.getElementById("tCT").textContent = fmt("America/Chicago");
       document.getElementById("tPT").textContent = fmt("America/Los_Angeles");
     }
+
     tick();
     setInterval(tick, 1000);
 
     // ---------- DAILY FACT ----------
     // Put ANY topic here. Keep it short + a tiny origin story.
-    // Links can be placeholders for now (Amazon search links are fine until you have affiliate links).
+    // These are Amazon search links (fine until you have affiliate links).
     const facts = [
       {
         title: "Fun Fact of the Day: Post-it Notes",
@@ -244,7 +265,6 @@ body { background: transparent !important; }
 
     function dayIndexUTC(){
       const d = new Date();
-      // same for everyone each day (UTC date)
       const key = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
       return Math.abs(key) % facts.length;
     }
@@ -260,6 +280,28 @@ body { background: transparent !important; }
     }
 
     setFact();
+
+    // ---------- SOUND TOGGLE ----------
+    // Browsers block autoplay WITH sound, so we start muted.
+    // This button lets the user turn audio on.
+    const oceanVideo = document.getElementById("oceanVideo");
+    const soundBtn = document.getElementById("soundBtn");
+
+    soundBtn.addEventListener("click", async () => {
+      try{
+        oceanVideo.muted = !oceanVideo.muted;
+        if (!oceanVideo.muted) {
+          await oceanVideo.play();
+          soundBtn.textContent = "🔊 Sound: On";
+        } else {
+          soundBtn.textContent = "🔇 Sound: Off";
+        }
+      } catch(e){
+        // If play fails, keep muted and show off
+        oceanVideo.muted = true;
+        soundBtn.textContent = "🔇 Sound: Off";
+      }
+    });
   </script>
 </body>
 </html>
