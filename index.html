@@ -22,7 +22,7 @@
 
     *{ box-sizing:border-box; }
 
-    /* --- Ocean background video --- */
+    /* Video background */
     .bg-video{
       position: fixed;
       inset: 0;
@@ -30,12 +30,11 @@
       height: 100%;
       object-fit: cover;
       z-index: -2;
-      background: linear-gradient(180deg, var(--bg2), var(--bg1)); /* fallback if video fails */
     }
     .bg-overlay{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.35); /* darkens video so text is readable */
+      background: rgba(0,0,0,.35);
       z-index: -1;
     }
 
@@ -48,10 +47,9 @@
       justify-content:center;
       align-items:flex-start;
       padding: 28px 16px 44px;
-      background: transparent; /* IMPORTANT: let video show through */
+      background: transparent; /* IMPORTANT: so the video shows */
     }
 
-    /* keep content above the video */
     .wrap{
       position: relative;
       z-index: 1;
@@ -122,6 +120,13 @@
       margin: 0 0 12px;
     }
 
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
     .btn{
       display:inline-block;
       text-decoration:none;
@@ -131,7 +136,10 @@
       border-radius: 12px;
       font-weight: 800;
       box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      border: none;
+      cursor: pointer;
     }
+
     .btn:hover{ filter: brightness(1.05); }
 
     .tiny{
@@ -139,35 +147,15 @@
       font-size: 12px;
       color: var(--muted);
     }
-
-    /* Optional: a small sound button (autoplay must start muted) */
-    .soundBtn{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      margin-top: 12px;
-      font-size: 12px;
-      font-weight: 800;
-      color: #fff;
-      background: rgba(0,0,0,.25);
-      border: 1px solid rgba(255,255,255,.18);
-      padding: 8px 10px;
-      border-radius: 12px;
-      cursor: pointer;
-      user-select: none;
-    }
   </style>
 </head>
 
 <body>
-  <!-- Ocean background video -->
-  <video id="oceanVideo" class="bg-video" autoplay muted loop playsinline>
+  <!-- Ocean background video (file must be in repo root next to index.html) -->
+  <video class="bg-video" id="oceanVideo" autoplay muted loop playsinline>
     <source src="14942531_640_360_24fps.mp4" type="video/mp4">
-    <!-- If you later add a .webm file, include it above mp4 for better performance:
-    <source src="ocean.webm" type="video/webm">
-    -->
   </video>
-  <div class="bg-overlay" aria-hidden="true"></div>
+  <div class="bg-overlay"></div>
 
   <div class="wrap">
     <h1>Live USA Time Zones</h1>
@@ -187,17 +175,24 @@
         <div class="time" id="tPT">--:--:--</div>
       </div>
       <div class="sub">Updates every second.</div>
-
-      <!-- Optional sound toggle (click to unmute) -->
-      <button class="soundBtn" id="soundBtn" type="button">🔇 Sound: Off</button>
     </div>
 
     <!-- DAILY FACT -->
     <div class="card" aria-label="Daily fun fact">
       <div class="factTitle" id="factTitle">Fun Fact of the Day</div>
       <p class="factText" id="factText"></p>
-      <a class="btn" id="factLink" href="#" target="_blank" rel="noopener">See something similar</a>
-      <div class="tiny">Changes daily automatically. (Link can be updated later to your affiliate link.)</div>
+
+      <div class="btnRow">
+        <a class="btn" id="factLink" href="#" target="_blank" rel="noopener">See something similar</a>
+        <button class="btn" id="soundBtn" type="button">Sound: Off</button>
+      </div>
+
+      <div class="tiny">
+        Changes daily automatically. (Link can be updated later to your affiliate link.)
+      </div>
+      <div class="tiny">
+        Note: browsers block autoplay sound, so you must click “Sound” to hear audio.
+      </div>
     </div>
   </div>
 
@@ -212,19 +207,15 @@
         hour12: true
       }).format(new Date());
     }
-
     function tick(){
       document.getElementById("tET").textContent = fmt("America/New_York");
       document.getElementById("tCT").textContent = fmt("America/Chicago");
       document.getElementById("tPT").textContent = fmt("America/Los_Angeles");
     }
-
     tick();
     setInterval(tick, 1000);
 
     // ---------- DAILY FACT ----------
-    // Put ANY topic here. Keep it short + a tiny origin story.
-    // These are Amazon search links (fine until you have affiliate links).
     const facts = [
       {
         title: "Fun Fact of the Day: Post-it Notes",
@@ -233,7 +224,7 @@
       },
       {
         title: "Fun Fact of the Day: The Microwave",
-        text: "Microwave cooking took off after an engineer noticed a candy bar melting near radar equipment in the 1940s. That strange accident helped inspire the first microwave oven.",
+        text: "Microwave cooking took off after an engineer noticed a candy bar melting near radar equipment in the 1940s. That odd accident helped inspire the first microwave oven.",
         link: "https://www.amazon.com/s?k=microwave"
       },
       {
@@ -242,14 +233,9 @@
         link: "https://www.amazon.com/s?k=velcro"
       },
       {
-        title: "Fun Fact of the Day: The GPS",
-        text: "GPS grew from Cold War-era satellite research and became widely useful once signals and receivers improved. Today it quietly runs maps, deliveries, and rides.",
+        title: "Fun Fact of the Day: GPS",
+        text: "GPS grew from early satellite science and became everyday tech once receivers got cheaper and better. Now it quietly runs maps, deliveries, and rides.",
         link: "https://www.amazon.com/s?k=gps+tracker"
-      },
-      {
-        title: "Fun Fact of the Day: Sunglasses",
-        text: "Early sunglasses weren’t just fashion—they helped reduce glare for travelers and outdoor workers. Better plastics and coatings later made them cheap and durable.",
-        link: "https://www.amazon.com/s?k=sunglasses"
       },
       {
         title: "Fun Fact of the Day: The Ballpoint Pen",
@@ -278,28 +264,23 @@
       a.href = f.link || "#";
       a.style.display = f.link ? "inline-block" : "none";
     }
-
     setFact();
 
     // ---------- SOUND TOGGLE ----------
-    // Browsers block autoplay WITH sound, so we start muted.
-    // This button lets the user turn audio on.
-    const oceanVideo = document.getElementById("oceanVideo");
-    const soundBtn = document.getElementById("soundBtn");
+    const video = document.getElementById("oceanVideo");
+    const btn = document.getElementById("soundBtn");
 
-    soundBtn.addEventListener("click", async () => {
+    btn.addEventListener("click", async () => {
       try{
-        oceanVideo.muted = !oceanVideo.muted;
-        if (!oceanVideo.muted) {
-          await oceanVideo.play();
-          soundBtn.textContent = "🔊 Sound: On";
-        } else {
-          soundBtn.textContent = "🔇 Sound: Off";
+        video.muted = !video.muted;
+        if (!video.muted) {
+          await video.play(); // helps on some browsers
         }
-      } catch(e){
-        // If play fails, keep muted and show off
-        oceanVideo.muted = true;
-        soundBtn.textContent = "🔇 Sound: Off";
+        btn.textContent = video.muted ? "Sound: Off" : "Sound: On";
+      }catch(e){
+        // If browser blocks it, keep muted
+        video.muted = true;
+        btn.textContent = "Sound: Off";
       }
     });
   </script>
